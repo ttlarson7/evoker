@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
 {
 
     public GameObject fireball;
+    public GameObject wind;
     public Transform spawnPoint;
     
 
@@ -14,15 +15,17 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if (Input.GetMouseButtonDown(0))
-        //{
-        //    fireBall();
-        //}
     }
 
-    private void fireBall()
+    public void SummonFireball()
     {
         Vector3 spawnPos = spawnPoint.position;
         Instantiate(fireball, spawnPos, Quaternion.identity);
+    }
+
+    public void SummonWind()
+    {
+        Vector3 spawnPos = spawnPoint.position;
+        Instantiate(wind, spawnPos, Quaternion.identity);
     }
 }

@@ -11,12 +11,13 @@ using UnityEditor.Experimental.GraphView;
 
 public class LineManager : MonoBehaviour
 {
-
+    public GameManager gameManager;
     public GameObject lineprefab;
+    public wizardController wizard;
+    
     List<Vector2> userDrawnSpell = new List<Vector2>();
+    private List<GameObject> linesOnScreen = new List<GameObject>();
     private Line activeLine;
-    public GameObject spellPrefab;
-
     private float timer;
     private bool isTiming;
 
@@ -26,9 +27,11 @@ public class LineManager : MonoBehaviour
         //reset timer and start new line
         if (Input.GetMouseButtonDown(0))
         {
+            
             timer = 0;
             GameObject newLine = Instantiate(lineprefab);
             activeLine = newLine.GetComponent<Line>();
+            linesOnScreen.Add(newLine);
         }
         //add line to total image, start timing
         if (Input.GetMouseButtonUp(0))
@@ -59,15 +62,30 @@ public class LineManager : MonoBehaviour
         }
 
         //Stop timing and cast spell when timer > 5
-        if (timer > 3)
+        if (timer > 1)
         {
+            wizard.startAnimation();
             isTiming = false;
             timer = 0;
+            userDrawnSpell = processPoints(userDrawnSpell);
             //SaveSpell();
             LoadSpell();
-            userDrawnSpell = processPoints(userDrawnSpell);
+            
+            ClearLines();
             userDrawnSpell.Clear();
         }
+    }
+
+    private void ClearLines()
+    {
+        foreach (GameObject line in linesOnScreen)
+        {
+            if (line != null)
+            {
+                Destroy(line); // Destroy the line GameObject
+            }
+        }
+        linesOnScreen.Clear(); // Clear the list of lines
     }
 
     private List<Vector2> centerPoints(List<Vector2> points)
@@ -149,20 +167,41 @@ public class LineManager : MonoBehaviour
 
         string path = Application.persistentDataPath + "/spell.json";
         string path2 = Application.persistentDataPath + "/wind.json";
+        string spell = "no cast";
+        float maxSim = 0;
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
             SpellData fireball = JsonUtility.FromJson<SpellData>(json);
+            float similarity = compareSpells(fireball.points, userDrawnSpell);
+            if (similarity > maxSim)
+            {
+                maxSim = similarity;
+                spell = "fireball";
+            }
             json = File.ReadAllText(path2);
             SpellData windSpell = JsonUtility.FromJson<SpellData>(json);
-           
-            //DisplaySpell(loadedSpell.points);
-            Debug.Log("Spell loaded successfully. Points count: " + fireball.points.Count);
-            float simularity = compareSpells(fireball.points, userDrawnSpell);
-            print(simularity);
-            Debug.Log("Spell loaded successfully. Points count: " + windSpell.points.Count);
-            simularity = compareSpells(windSpell.points, userDrawnSpell);
-            print(simularity);
+            similarity = compareSpells(windSpell.points, userDrawnSpell);
+            if (similarity > maxSim)
+            {
+                maxSim = similarity;
+                spell = "wind";
+            }
+            if (maxSim > 0)
+            {
+                StartCoroutine(WaitAndCast(spell));
+                //if (spell == "fireball")
+                //{
+                //    gameManager.SummonFireball();
+                //}else if (spell == "wind")
+                //{
+                //    gameManager.SummonWind();
+                //}
+            }
+
+            print(maxSim);
+            
+            
 
         }
         else
@@ -170,6 +209,20 @@ public class LineManager : MonoBehaviour
             Debug.LogWarning("Spell file not found at: " + path);
         }
     }
+    private IEnumerator WaitAndCast(string spell)
+    {
+        yield return new WaitForSeconds(0.2f); // Wait for 0.5 seconds
+
+        if (spell == "fireball")
+        {
+            gameManager.SummonFireball();
+        }
+        else if (spell == "wind")
+        {
+            gameManager.SummonWind();
+        }
+    }
+
 
     private float compareSpells(List<Vector2> definedSpell, List<Vector2> userDrawn)
     {
