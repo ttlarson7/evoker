@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditorInternal;
 using UnityEngine;
 
-public class Spell : MonoBehaviour
+public class EviLSpell : MonoBehaviour
 {
     private Rigidbody2D rb;
     public float velocity;
@@ -14,7 +14,7 @@ public class Spell : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         //rb.AddForce(Vector2.up * velocity);
-        SetStraightVelocity();
+        SetDownVelocity();
     }
 
     // Update is called once per frame
@@ -30,22 +30,19 @@ public class Spell : MonoBehaviour
 
 
 
-    private void SetStraightVelocity()
+    private void SetDownVelocity()
     {
         rb.velocity = transform.up * velocity;
     }
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        
-        if (other.gameObject.CompareTag("EvilWizard"))
-        {
-            print("HERE");
-            evilWizard.health -= damage;
-            Destroy(gameObject);
-        }else if (other.gameObject.CompareTag("WhirlWind"))
+
+       
+        if (other.gameObject.CompareTag("WhirlWind"))
         {
             Destroy(gameObject);
+            Destroy(other.gameObject);
         }
         else if (other.gameObject.CompareTag("FireBall"))
         {
