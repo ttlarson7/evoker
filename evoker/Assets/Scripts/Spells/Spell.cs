@@ -7,6 +7,9 @@ public class Spell : MonoBehaviour
 {
     private Rigidbody2D rb;
     public float velocity;
+    public float damage;
+    public evilWizardHealth evilWizard;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -25,8 +28,24 @@ public class Spell : MonoBehaviour
 
     }
 
+
+
     private void SetStraightVelocity()
     {
         rb.velocity = transform.up * velocity;
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        
+        if (other.gameObject.CompareTag("EvilWizard"))
+        {
+            print("HERE");
+            evilWizard.health -= damage;
+            Destroy(gameObject);
+        }else if (other.gameObject.CompareTag("WhirlWind"))
+        {
+            Destroy(gameObject);
+        }
     }
 }

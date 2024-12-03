@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     public GameObject fireball;
     public GameObject wind;
     public Transform spawnPoint;
-    
+    public evilWizardHealth evilWizard;
 
     
 
@@ -20,7 +20,12 @@ public class GameManager : MonoBehaviour
     public void SummonFireball()
     {
         Vector3 spawnPos = spawnPoint.position;
-        Instantiate(fireball, spawnPos, Quaternion.identity);
+        GameObject fireBall = Instantiate(fireball, spawnPos, Quaternion.identity);
+        Spell spellScript = fireBall.GetComponent<Spell>();
+        if (spellScript != null)
+        {
+            spellScript.evilWizard = evilWizard;
+        }
     }
 
     public void SummonWind()

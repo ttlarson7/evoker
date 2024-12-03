@@ -187,7 +187,7 @@ public class LineManager : MonoBehaviour
                 maxSim = similarity;
                 spell = "wind";
             }
-            if (maxSim > 0)
+            if (maxSim > 90)
             {
                 StartCoroutine(WaitAndCast(spell));
                 //if (spell == "fireball")
