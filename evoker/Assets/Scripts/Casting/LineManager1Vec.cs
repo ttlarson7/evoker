@@ -26,22 +26,17 @@ public class LineManager : MonoBehaviour
     void Update()
     {
         Vector2 touchPosScreen = Input.mousePosition;
-        if(touchPosScreen.y > maxDrawBoundary)
+        if(touchPosScreen.y > maxDrawBoundary && Input.GetMouseButton(0))
         {
             if (activeLine != null)
             {
                 activeLines.Add(activeLine); // Save the active line
                 activeLine = null;          // Clear the current active line
             }
+            print("HERE");
             return;
         }
-        //if (Input.GetMouseButton(0) && touchPosScreen.y < maxDrawBoundary && activeLine == null)
-        //{
-        //    // Start a new line when re-entering the drawable area
-        //    GameObject newLine = Instantiate(lineprefab);
-        //    activeLine = newLine.GetComponent<Line>();
-        //    linesOnScreen.Add(newLine);
-        //}
+       
         //reset timer and start new line
         if (Input.GetMouseButton(0) && touchPosScreen.y < maxDrawBoundary)
         {
@@ -72,6 +67,7 @@ public class LineManager : MonoBehaviour
             }
             isTiming = true;
             activeLine = null;
+            print("HERE");
         }
 
         //Update activeLine to current touch position
