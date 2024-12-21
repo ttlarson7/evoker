@@ -18,27 +18,57 @@ public class LineManager : MonoBehaviour
     List<Vector2> userDrawnSpell = new List<Vector2>();
     private List<GameObject> linesOnScreen = new List<GameObject>();
     private Line activeLine;
+    private List<Line> activeLines = new List<Line>();
     private float timer;
     private bool isTiming;
-
+    float maxDrawBoundary = Screen.height * .66f;
     // Update is called once per frame
     void Update()
     {
+        Vector2 touchPosScreen = Input.mousePosition;
+        if(touchPosScreen.y > maxDrawBoundary)
+        {
+            if (activeLine != null)
+            {
+                activeLines.Add(activeLine); // Save the active line
+                activeLine = null;          // Clear the current active line
+            }
+            return;
+        }
+        //if (Input.GetMouseButton(0) && touchPosScreen.y < maxDrawBoundary && activeLine == null)
+        //{
+        //    // Start a new line when re-entering the drawable area
+        //    GameObject newLine = Instantiate(lineprefab);
+        //    activeLine = newLine.GetComponent<Line>();
+        //    linesOnScreen.Add(newLine);
+        //}
         //reset timer and start new line
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0) && touchPosScreen.y < maxDrawBoundary)
         {
             
             timer = 0;
-            GameObject newLine = Instantiate(lineprefab);
-            activeLine = newLine.GetComponent<Line>();
-            linesOnScreen.Add(newLine);
+            if(activeLine == null)
+            {
+                GameObject newLine = Instantiate(lineprefab);
+                activeLine = newLine.GetComponent<Line>();
+                linesOnScreen.Add(newLine);
+            }
+            
         }
         //add line to total image, start timing
         if (Input.GetMouseButtonUp(0))
         {
-            if (activeLine != null)
+            if (activeLine != null || activeLines != null)
             {
-                userDrawnSpell.AddRange(activeLine.GetPoints());
+                for (int i = 0; i < activeLines.Count; i++)
+                {
+                    userDrawnSpell.AddRange(activeLines[i].GetPoints());
+                }
+                if(activeLine != null)
+                {
+                    userDrawnSpell.AddRange(activeLine.GetPoints());
+                }
+                
             }
             isTiming = true;
             activeLine = null;
@@ -206,7 +236,7 @@ public class LineManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Spell file not found at: " + path);
+            Debug.LogWarning  ("Spell file not found at: " + path);
         }
     }
     private IEnumerator WaitAndCast(string spell)
