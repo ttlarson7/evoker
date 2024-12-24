@@ -22,6 +22,8 @@ public class LineManager : MonoBehaviour
     private float timer;
     private bool isTiming;
     float maxDrawBoundary = Screen.height * .66f;
+
+    private List<string> spellNames = new List<string> { "spell", "wind", "shield", "counterspell", "magicmissile" };
     // Update is called once per frame
     void Update()
     {
@@ -96,7 +98,7 @@ public class LineManager : MonoBehaviour
             userDrawnSpell = processPoints(userDrawnSpell);
             //SaveSpell();
             LoadSpell();
-            
+
             ClearLines();
             userDrawnSpell.Clear();
         }
@@ -158,7 +160,7 @@ public class LineManager : MonoBehaviour
             SpellData spellData = new SpellData { points = spellPoints };
             string json = JsonUtility.ToJson(spellData);
 
-            string path = Application.persistentDataPath + "/wind.json";
+            string path = Application.persistentDataPath + "/magicmissile.json";
             File.WriteAllText(path, json);
 
             Debug.Log("Spell saved to: " + path);
@@ -190,56 +192,87 @@ public class LineManager : MonoBehaviour
 
     void LoadSpell()
     {
-
-        string path = Application.persistentDataPath + "/spell.json";
-        string path2 = Application.persistentDataPath + "/wind.json";
-        string spell = "no cast";
+        string path;
         float maxSim = 0;
-        if (File.Exists(path))
+        string json;
+        SpellData spellData;
+        float similarity;
+        string spell = "no spell";
+        for(int i = 0; i < spellNames.Count; i++)
         {
-            string json = File.ReadAllText(path);
-            SpellData fireball = JsonUtility.FromJson<SpellData>(json);
-            float similarity = compareSpells(fireball.points, userDrawnSpell);
-            if (similarity > maxSim)
+            path = Application.persistentDataPath + "/" + spellNames[i] + ".json";
+            if (File.Exists
+                (path))
             {
-                maxSim = similarity;
-                spell = "fireball";
+                json = File.ReadAllText(path);
+                spellData = JsonUtility.FromJson<SpellData>(json);
+                similarity = compareSpells(spellData.points, userDrawnSpell);
+                if(similarity > maxSim)
+                {
+                    maxSim = similarity;
+                    spell = spellNames[i];
+                }
             }
-            json = File.ReadAllText(path2);
-            SpellData windSpell = JsonUtility.FromJson<SpellData>(json);
-            similarity = compareSpells(windSpell.points, userDrawnSpell);
-            if (similarity > maxSim)
+            else
             {
-                maxSim = similarity;
-                spell = "wind";
+                Debug.Log("SPELL NOT FOUND AT: " + path);
             }
-            if (maxSim > 90)
-            {
-                StartCoroutine(WaitAndCast(spell));
-                //if (spell == "fireball")
-                //{
-                //    gameManager.SummonFireball();
-                //}else if (spell == "wind")
-                //{
-                //    gameManager.SummonWind();
-                //}
-            }
+        }
+        if(maxSim > 90)
+        {
+            StartCoroutine(WaitAndCast(spell));
+        }
+        print(maxSim);
+        print(spell);
+        //string path = Application.persistentDataPath + "/spell.json";
+        //string path2 = Application.persistentDataPath + "/wind.json";
+        //string spell = "no cast";
+        ////float maxSim = 0;
+        //if (File.Exists(path))
+        //{
+        //    string json = File.ReadAllText(path);
+        //    SpellData fireball = JsonUtility.FromJson<SpellData>(json);
+        //    float similarity = compareSpells(fireball.points, userDrawnSpell);
+        //    if (similarity > maxSim)
+        //    {
+        //        maxSim = similarity;
+        //        spell = "fireball";
+        //    }
+        //    json = File.ReadAllText(path2);
+        //    SpellData windSpell = JsonUtility.FromJson<SpellData>(json);
+        //    similarity = compareSpells(windSpell.points, userDrawnSpell);
+        //    if (similarity > maxSim)
+        //    {
+        //        maxSim = similarity;
+        //        spell = "wind";
+        //    }
+        //    if (maxSim > 90)
+        //    {
+        //        StartCoroutine(WaitAndCast(spell));
+        //        //if (spell == "fireball")
+        //        //{
+        //        //    gameManager.SummonFireball();
+        //        //}else if (spell == "wind")
+        //        //{
+        //        //    gameManager.SummonWind();
+        //        //}
+        //    }
 
-            print(maxSim);
+        //    print(maxSim);
             
             
 
-        }
-        else
-        {
-            Debug.LogWarning  ("Spell file not found at: " + path);
-        }
+        //}
+        //else
+        //{
+        //    Debug.LogWarning  ("Spell file not found at: " + path);
+        //}
     }
     private IEnumerator WaitAndCast(string spell)
     {
         yield return new WaitForSeconds(0.2f); // Wait for 0.5 seconds
 
-        if (spell == "fireball")
+        if (spell == "spell")
         {
             gameManager.SummonFireball();
         }
